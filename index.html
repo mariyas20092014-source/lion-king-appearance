@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>slide RT</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  background: url("images/background.png") center/cover no-repeat;
+  height: 100vh;
+  font-family: 'roboto condensed', sans-serif;
+  overflow: hidden;
+}
+
+.question {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.7);
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  padding: 10px 30px;
+  color: #333;
+  font-size: 2vw;
+  border-radius: 0;
+  text-align: center;
+  z-index: 10;
+}
+
+.score {
+  position: absolute;
+  top: 5%;
+  right: 5%;
+  background: rgba(255,255,255,0.7);
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  padding: 10px 30px;
+  color: #333;
+  font-size: 2vw;
+  border-radius: 0;
+  z-index: 10;
+}
+
+.hats {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+}
+
+.hat-container {
+  position: relative;
+  width: 28%;
+  height: 400px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  overflow: visible;
+}
+
+.hat {
+  width: auto;
+  height: 250px;
+  z-index: 3;
+  position: absolute;
+  bottom: 0;
+}
+
+.rabbit {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;      
+  max-width: 50%;    
+  z-index: 2;
+  transition: bottom 0.6s ease, transform 0.1s;
+}
+
+.rabbit.show {
+  bottom: 100px;      
+}
+
+.rabbit-text {
+  position: absolute;
+  bottom: 260px;      
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2vw;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 1px 1px 3px #000;
+  opacity: 0;
+  pointer-events: auto;
+  z-index: 4;
+  transition: opacity 0.4s ease;
+  cursor: pointer;
+}
+
+.sparkles {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: gold;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: sparkle 1s ease-out forwards;
+}
+
+@keyframes sparkle {
+  0% { transform: scale(1) translateY(0); opacity: 1; }
+  100% { transform: scale(0.5) translateY(-80px); opacity: 0; }
+}
+
+.heart {
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  background: url("https://cdn-icons-png.flaticon.com/512/833/833472.png") center/contain no-repeat;
+  pointer-events: none;
+  animation: heartFall 1.3s ease-out forwards;
+  opacity: 0.95;
+}
+
+@keyframes heartFall {
+  0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(80px) scale(0.4) rotate(45deg); opacity: 0; }
+}
+
+#tryAgain {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255,255,255,0.8);
+  border: 2px solid #ff5c5c;
+  border-radius: 10px;
+  padding: 15px 30px;
+  font-size: 1.5em;
+  color: #ff5c5c;
+  display: none;
+  cursor: pointer;
+  z-index: 2000;
+}
+
+#endScreen {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3em;
+  color: white;
+  text-shadow: 0 0 10px #000;
+  display: none;
+  text-align: center;
+  z-index: 3000;
+}
+
+.firework {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, yellow, orange, red);
+  border-radius: 50%;
+  animation: explode 1.2s ease-out forwards;
+  pointer-events: none;
+  z-index: 4000;
+}
+
+@keyframes explode {
+  0% { transform: scale(0.2); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.8); opacity: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="question" id="questionText"></div>
+<div class="score" id="scoreDisplay">✅ 0</div>
+
+<div class="hats" id="hatsContainer">
+  <div class="hat-container" data-index="1">
+    <img class="rabbit" src="images/cat.png" alt="rabbit">
+    <div class="rabbit-text"></div>
+    <img class="hat" src="images/bag.png" alt="hat">
+  </div>
+  <div class="hat-container" data-index="2">
+    <img class="rabbit" src="images/cat.png" alt="rabbit">
+    <div class="rabbit-text"></div>
+    <img class="hat" src="images/bag.png" alt="hat">
+  </div>
+  <div class="hat-container" data-index="3">
+    <img class="rabbit" src="images/cat.png" alt="rabbit">
+    <div class="rabbit-text"></div>
+    <img class="hat" src="images/bag.png" alt="hat">
+  </div>
+</div>
+
+<div id="tryAgain">💔 Try again</div>
+<div id="endScreen">🎉 Great job! 🎉</div>
+
+<audio id="popSound" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_7f5f996cb8.mp3?filename=pop-94319.mp3"></audio>
+
+<script>
+(function() {
+  const wm = "cmFkaWF0ZWFjaGVy"; 
+  const _ = wm.split('').map(c => c.charCodeAt(0)).reduce((a,b)=>a+b,0);
+})();
+
+const tasks = [
+  { text: "Do you drink tea every day?.", answers: ["Yes, I do","Yes, I does","Yes, I am"], correct: 1 },
+  { text: "Does your mother read stories online?.", answers: ["No, she don't","No, she doesn't","No, she isn't"], correct: 2 },
+  { text: "Do you wear a jacket in the summer?", answers: ["No, I don't","No, I doesn't","No, I'm not"], correct: 1 },
+  { text: "Do your parents play computer games?", answers: ["No, they doesn't","No, they aren't","No, they don't"], correct: 3 },
+  { text: "Does Tom ride a horse?", answers: ["Yes, he does","Yes, he do","Yes, he is"], correct: 1 },
+  { text: "Do you drink water every day?.", answers: ["Yes, I does","Yes, I am","Yes, I do"], correct: 3 },
+  { text: "Does your brother make a sandcastle at the sea?", answers: ["No, he don't","No, he doesn't","No, he isn't"], correct: 2 },
+];
+
+let currentTask = 0;
+let score = 0;
+let mistakes = 0;
+
+const hats = document.querySelectorAll('.hat-container');
+const questionText = document.getElementById('questionText');
+const tryAgain = document.getElementById('tryAgain');
+const endScreen = document.getElementById('endScreen');
+const scoreDisplay = document.getElementById('scoreDisplay');
+const popSound = document.getElementById('popSound');
+
+function loadTask() {
+  const task = tasks[currentTask];
+  questionText.textContent = task.text;
+  hats.forEach((hat, i) => {
+    const rabbit = hat.querySelector('.rabbit');
+    const text = hat.querySelector('.rabbit-text');
+    rabbit.setAttribute('data-answer', i + 1);
+    text.setAttribute('data-answer', i + 1);
+    text.textContent = task.answers[i];
+    rabbit.classList.remove('show');
+    rabbit.style.filter = "none";
+    text.style.opacity = 0;
+  });
+}
+
+function showRabbit(hat) {
+  const rabbit = hat.querySelector('.rabbit');
+  const text = hat.querySelector('.rabbit-text');
+  rabbit.classList.add('show');
+  text.style.opacity = 1;
+}
+
+function shake(element) {
+  element.style.transition = "transform 0.1s";
+  element.style.transform = "translateX(-50%) translateX(-10px)";
+  setTimeout(() => element.style.transform = "translateX(-50%) translateX(10px)", 100);
+  setTimeout(() => element.style.transform = "translateX(-50%) translateX(-10px)", 200);
+  setTimeout(() => element.style.transform = "translateX(-50%)", 300);
+}
+
+function makeSparkles(x, y) {
+  for (let i = 0; i < 10; i++) {
+    const s = document.createElement("div");
+    s.classList.add("sparkles");
+    s.style.left = x + Math.random() * 100 - 50 + "px";
+    s.style.top = y + Math.random() * 50 - 25 + "px";
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1000);
+  }
+}
+
+function makeHearts(x, y) {
+  for (let i = 0; i < 8; i++) {
+    const h = document.createElement("div");
+    h.classList.add("heart");
+    h.style.left = x + Math.random() * 100 - 50 + "px";
+    h.style.top = y + Math.random() * 60 - 30 + "px";
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 1300);
+  }
+}
+
+function fireworks() {
+  popSound.play();
+  for (let i = 0; i < 40; i++) {
+    const f = document.createElement("div");
+    f.classList.add("firework");
+    const x = window.innerWidth / 2;
+    const y = window.innerHeight / 2;
+    f.style.left = x + "px";
+    f.style.top = y + "px";
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = 200 + Math.random() * 200;
+    f.style.setProperty("--dx", `${Math.cos(angle) * distance}px`);
+    f.style.setProperty("--dy", `${Math.sin(angle) * distance}px`);
+    f.style.background = `radial-gradient(circle, hsl(${Math.random()*360}, 100%, 60%), gold)`;
+    document.body.appendChild(f);
+    setTimeout(() => f.remove(), 1200);
+  }
+}
+
+hats.forEach(hat => {
+  const rabbit = hat.querySelector('.rabbit');
+  const text = hat.querySelector('.rabbit-text');
+  const hatImg = hat.querySelector('.hat');
+
+  hatImg.addEventListener('click', (e) => {
+    e.stopPropagation();
+    hats.forEach(h => {
+      h.querySelector('.rabbit').classList.remove('show');
+      h.querySelector('.rabbit-text').style.opacity = 0;
+    });
+    showRabbit(hat);
+  });
+
+  text.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const answer = parseInt(text.getAttribute('data-answer'));
+    const correct = tasks[currentTask].correct;
+    const rect = rabbit.getBoundingClientRect();
+
+    if (answer === correct) {
+      rabbit.style.filter = "drop-shadow(0 0 25px gold)";
+      makeSparkles(rect.left + rect.width/2, rect.top + rect.height/3);
+      score++;
+      scoreDisplay.textContent = `✅ ${score}`;
+      setTimeout(() => {
+        currentTask++;
+        if (currentTask < tasks.length) {
+          loadTask();
+        } else {
+          document.getElementById('hatsContainer').style.display = "none";
+          questionText.style.display = "none";
+          scoreDisplay.style.display = "none";
+          endScreen.style.display = "block";
+          fireworks();
+        }
+      }, 1000);
+    } else {
+      shake(rabbit);
+      makeHearts(rect.left + rect.width/2, rect.top + rect.height/3);
+      mistakes++;
+      if (mistakes > 3) {
+        document.getElementById('hatsContainer').style.display = "none";
+        questionText.style.display = "none";
+        scoreDisplay.style.display = "none";
+        tryAgain.style.display = "block";
+      }
+    }
+  });
+
+  rabbit.addEventListener('click', e => e.stopPropagation());
+});
+
+tryAgain.addEventListener('click', () => {
+  tryAgain.style.display = "none";
+  document.getElementById('hatsContainer').style.display = "flex";
+  questionText.style.display = "block";
+  scoreDisplay.style.display = "block";
+  mistakes = 0;
+  loadTask();
+});
+
+loadTask();
+</script>
+</body>
+</html>
